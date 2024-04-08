@@ -38,7 +38,7 @@ func (r *repository) Create(ctx context.Context, params *pBannerRepo.CreateParam
 		r.log.Error(constants.DBError, zap.Error(err))
 		return 0, pErrors.ErrDb
 	}
-	defer tx.Rollback(ctx)
+	defer tx.Rollback(ctx) // nolint
 
 	row := tx.QueryRow(ctx, createBannerCmd,
 		params.FeatureID,
@@ -108,9 +108,9 @@ func (r *repository) List(ctx context.Context, params *pBannerRepo.FilterParams)
 	}
 
 	if len(conditions) > 0 {
-		listCmd += " WHERE " + fmt.Sprintf("%s", conditions[0])
+		listCmd += " WHERE " + conditions[0]
 		for _, condition := range conditions[1:] {
-			listCmd += " AND " + fmt.Sprintf("%s", condition)
+			listCmd += " AND " + condition
 		}
 	}
 
@@ -204,7 +204,7 @@ func (r *repository) PartialUpdate(ctx context.Context, params *pBannerRepo.Part
 		r.log.Error(constants.DBError, zap.Error(err))
 		return pErrors.ErrDb
 	}
-	defer tx.Rollback(ctx)
+	defer tx.Rollback(ctx) // nolint
 
 	var setValues []string
 	var args []any

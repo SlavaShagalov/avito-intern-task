@@ -1,0 +1,15 @@
+run:
+  timeout: 10m
+
+linters-settings:
+  staticcheck:
+    checks: [ "all", "-SA1029" ]
+
+linters:
+  enable:
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - unused
