@@ -22,6 +22,7 @@ type FilterParams struct {
 type GetParams struct {
 	FeatureID int
 	TagID     int
+	IsAdmin   bool
 }
 
 type PartialUpdateParams struct {
@@ -35,7 +36,7 @@ type PartialUpdateParams struct {
 type Repository interface {
 	Create(ctx context.Context, params *CreateParams) (int64, error)
 	List(ctx context.Context, params *FilterParams) ([]models.Banner, error)
-	Get(ctx context.Context, params *GetParams) (map[string]any, error)
+	Get(ctx context.Context, params *GetParams) (*models.Banner, error)
 	PartialUpdate(ctx context.Context, params *PartialUpdateParams) error
 	Delete(ctx context.Context, id int64) error
 }

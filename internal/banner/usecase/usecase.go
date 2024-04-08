@@ -6,6 +6,7 @@ import (
 	"github.com/SlavaShagalov/avito-intern-task/internal/banner/repository"
 	pBannerRepo "github.com/SlavaShagalov/avito-intern-task/internal/banner/repository"
 	"github.com/SlavaShagalov/avito-intern-task/internal/models"
+	pErrors "github.com/SlavaShagalov/avito-intern-task/internal/pkg/errors"
 	"go.uber.org/zap"
 )
 
@@ -30,7 +31,14 @@ func (uc *usecase) List(ctx context.Context, params *pBannerRepo.FilterParams) (
 }
 
 func (uc *usecase) Get(ctx context.Context, params *pBannerRepo.GetParams) (map[string]any, error) {
-	return uc.repo.Get(ctx, params)
+	banner, err := uc.repo.Get(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	if !banner.IsActive && !params.IsAdmin {
+		return nil, pErrors.ErrBannerDisabled
+	}
+	return banner.Content, nil
 }
 
 func (uc *usecase) PartialUpdate(ctx context.Context, params *pBannerRepo.PartialUpdateParams) error {

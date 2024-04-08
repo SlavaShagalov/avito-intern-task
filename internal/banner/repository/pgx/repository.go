@@ -158,27 +158,40 @@ func (r *repository) List(ctx context.Context, params *pBannerRepo.FilterParams)
 }
 
 const getCmd = `
-	SELECT b.content
+	SELECT b.id,
+		   ARRAY_AGG(bt.tag_id) AS tag_ids,
+		   b.feature_id,
+		   b.content,
+		   b.is_active,
+		   b.created_at,
+		   b.updated_at
 	FROM banners b
 			 JOIN banner_tags bt ON b.id = bt.banner_id
 	WHERE bt.tag_id = $1 AND b.feature_id = $2
 	GROUP BY b.id;`
 
-func (r *repository) Get(ctx context.Context, params *pBannerRepo.GetParams) (map[string]any, error) {
+func (r *repository) Get(ctx context.Context, params *pBannerRepo.GetParams) (*models.Banner, error) {
 	row := r.pool.QueryRow(ctx, getCmd, params.TagID, params.FeatureID)
 
-	var content map[string]any
-	err := row.Scan(&content)
+	banner := new(models.Banner)
+	err := row.Scan(
+		&banner.ID,
+		&banner.TagIDs,
+		&banner.FeatureID,
+		&banner.Content,
+		&banner.IsActive,
+		&banner.CreatedAt,
+		&banner.UpdatedAt,
+	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, pErrors.ErrBannerNotFound
 		}
-
 		r.log.Error(constants.DBError, zap.Error(err))
 		return nil, pErrors.ErrDb
 	}
 
-	return content, nil
+	return banner, nil
 }
 
 const delTagsCmd = `

@@ -7,6 +7,7 @@ import (
 	"github.com/SlavaShagalov/avito-intern-task/internal/pkg/constants"
 	pErrors "github.com/SlavaShagalov/avito-intern-task/internal/pkg/errors"
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 	"net/http"
 	"strconv"
@@ -119,6 +120,13 @@ func (d *delivery) list(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *delivery) get(w http.ResponseWriter, r *http.Request) {
+	isAdmin, ok := r.Context().Value(mw.ContextIsAdmin).(bool)
+	if !ok {
+		d.log.Error("is_admin field not found")
+		pHTTP.HandleError(w, r, pErrors.ErrReadBody)
+		return
+	}
+
 	queryParams := r.URL.Query()
 	tagID, err := strconv.Atoi(queryParams.Get(TagIDKey))
 	if err != nil {
@@ -134,11 +142,16 @@ func (d *delivery) get(w http.ResponseWriter, r *http.Request) {
 	params := pBannerRepo.GetParams{
 		FeatureID: featureID,
 		TagID:     tagID,
+		IsAdmin:   isAdmin,
 	}
 
 	content, err := d.uc.Get(r.Context(), &params)
 	if err != nil {
-		pHTTP.HandleError(w, r, err)
+		if errors.Is(err, pErrors.ErrBannerDisabled) {
+			w.WriteHeader(http.StatusForbidden)
+		} else {
+			pHTTP.HandleError(w, r, err)
+		}
 		return
 	}
 

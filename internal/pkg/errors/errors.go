@@ -19,7 +19,10 @@ var (
 	ErrGetHashedPassword    = errors.New("get hashed password error")
 	ErrInvalidAuthToken     = errors.New("invalid auth token")
 	ErrAuthTokenNotFound    = errors.New("auth token not found")
-	ErrAdminRequired        = errors.New("permission denied, this action requires admin privileges")
+
+	// Access
+	ErrAdminRequired  = errors.New("admin privileges required")
+	ErrBannerDisabled = errors.New("banner disabled")
 
 	// HTTP
 	ErrReadBody         = errors.New("read request body error")
