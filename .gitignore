@@ -1,0 +1,9 @@
+*.out
+*.o
+
+coverage.html
+
+*.log
+
+# JetBrains
+.idea

@@ -1,0 +1,46 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres
+    container_name: banners_db
+    restart: always
+    env_file:
+      - ./.env
+    volumes:
+      - db-data:/var/lib/postgresql
+      - ./scripts/postgres/schema.sql:/docker-entrypoint-initdb.d/1.sql
+      - ./scripts/postgres/fill_db.sql:/docker-entrypoint-initdb.d/2.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - banners-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  api:
+    image: banners_api
+    build:
+      context: .
+      dockerfile: ./cmd/api/Dockerfile
+    container_name: banners_api
+    volumes:
+      - ./cmd/api/api.yaml:/configs/api.yaml
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - banners-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  db-data:
+
+networks:
+  banners-network:
+    name: banners_network
+    driver: bridge
