@@ -1,3 +1,7 @@
+INSERT INTO users(username, password, is_admin)
+VALUES ('admin', '$2a$10$F/YJirOprcmureYhionTPuiSBR8TC94SXQzxojoL1yjb2yt6SU2Qe', true),
+       ('user', '$2a$10$F/YJirOprcmureYhionTPuiSBR8TC94SXQzxojoL1yjb2yt6SU2Qe', false);
+
 INSERT INTO features(name)
 VALUES ('feature_1'),
        ('feature_2'),

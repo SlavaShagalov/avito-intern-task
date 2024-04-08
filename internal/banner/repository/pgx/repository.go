@@ -222,10 +222,15 @@ func (r *repository) PartialUpdate(ctx context.Context, params *pBannerRepo.Part
 		r.log.Debug("partialUpdateCmd", zap.String("", partialUpdateCmd))
 		r.log.Debug("args", zap.Any("", args))
 
-		_, err = r.pool.Exec(ctx, partialUpdateCmd, args...)
+		result, err := r.pool.Exec(ctx, partialUpdateCmd, args...)
 		if err != nil {
 			r.log.Error(constants.DBError, zap.Error(err))
 			return pErrors.ErrDb
+		}
+
+		rowsAffected := result.RowsAffected()
+		if rowsAffected == 0 {
+			return pErrors.ErrBannerNotFound
 		}
 	}
 

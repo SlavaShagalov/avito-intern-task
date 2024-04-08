@@ -2,6 +2,7 @@ package config
 
 const (
 	ServerPort = "PORT"
+	AuthKey    = "AUTH_KEY"
 )
 
 // Postgres

@@ -15,7 +15,7 @@ func ReadBody(r *http.Request, log *zap.Logger) ([]byte, error) {
 	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Error(constants.FailedReadRequestBody, zap.Error(err))
-		return nil, errors.Wrap(pErrors.ErrReadBody, err.Error())
+		return nil, pErrors.ErrReadBody
 	}
 
 	err = r.Body.Close()

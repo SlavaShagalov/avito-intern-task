@@ -17,6 +17,10 @@ import (
 	bannerDelivery "github.com/SlavaShagalov/avito-intern-task/internal/banner/delivery/http"
 	bannerRepository "github.com/SlavaShagalov/avito-intern-task/internal/banner/repository/pgx"
 	bannerUsecase "github.com/SlavaShagalov/avito-intern-task/internal/banner/usecase"
+
+	authDelivery "github.com/SlavaShagalov/avito-intern-task/internal/auth/delivery/http"
+	authUsecase "github.com/SlavaShagalov/avito-intern-task/internal/auth/usecase"
+	userRepository "github.com/SlavaShagalov/avito-intern-task/internal/user/repository/pgx"
 )
 
 func main() {
@@ -51,14 +55,20 @@ func main() {
 		logger.Info("Postgres connection closed")
 	}()
 
+	usersRepo := userRepository.New(pgxPool, logger)
 	bannerRepo := bannerRepository.New(pgxPool, logger)
+
+	authUC := authUsecase.New(usersRepo, logger)
 	bannerUC := bannerUsecase.New(bannerRepo, logger)
 
 	// ===== Server =====
+	checkAuth := mw.NewCheckAuth(authUC, logger)
+	checkAdminAccess := mw.NewCheckAdminAccess(logger)
 	accessLog := mw.NewAccessLog(logger)
 	router := mux.NewRouter()
 
-	bannerDelivery.RegisterHandlers(router, bannerUC, logger)
+	authDelivery.RegisterHandlers(router, authUC, logger)
+	bannerDelivery.RegisterHandlers(router, bannerUC, logger, checkAuth, checkAdminAccess)
 
 	server := http.Server{
 		Addr:    ":" + viper.GetString(config.ServerPort),

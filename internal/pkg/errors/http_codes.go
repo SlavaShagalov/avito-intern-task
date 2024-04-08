@@ -8,6 +8,16 @@ var httpCodes = map[error]int{
 	// Banner
 	ErrBannerNotFound: http.StatusNotFound,
 
+	// User
+	ErrUserNotFound:      http.StatusNotFound,
+	ErrUserAlreadyExists: http.StatusConflict,
+
+	// Auth
+	ErrWrongLoginOrPassword: http.StatusBadRequest,
+	ErrAuthTokenNotFound:    http.StatusUnauthorized,
+	ErrInvalidAuthToken:     http.StatusUnauthorized,
+	ErrAdminRequired:        http.StatusForbidden,
+
 	// HTTP
 	ErrReadBody:         http.StatusBadRequest,
 	ErrBadSessionCookie: http.StatusBadRequest,

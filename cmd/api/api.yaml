@@ -1,5 +1,6 @@
 # Server
 PORT: 8000
+AUTH_KEY: very_secret_key
 
 # Postgres
 PG_HOST: db

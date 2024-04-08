@@ -3,6 +3,7 @@ package http
 import (
 	"encoding/json"
 	pBannerRepo "github.com/SlavaShagalov/avito-intern-task/internal/banner/repository"
+	mw "github.com/SlavaShagalov/avito-intern-task/internal/middleware"
 	"github.com/SlavaShagalov/avito-intern-task/internal/pkg/constants"
 	pErrors "github.com/SlavaShagalov/avito-intern-task/internal/pkg/errors"
 	"github.com/gorilla/mux"
@@ -27,8 +28,8 @@ type delivery struct {
 	log *zap.Logger
 }
 
-func RegisterHandlers(mux *mux.Router, uc pBanner.Usecase, log *zap.Logger) {
-	del := delivery{
+func RegisterHandlers(mux *mux.Router, uc pBanner.Usecase, log *zap.Logger, checkAuth mw.Middleware, adminAccess mw.Middleware) {
+	dlv := delivery{
 		uc:  uc,
 		log: log,
 	}
@@ -39,17 +40,14 @@ func RegisterHandlers(mux *mux.Router, uc pBanner.Usecase, log *zap.Logger) {
 		userBannerPath = constants.ApiPrefix + "/user_banner"
 	)
 
-	mux.HandleFunc(bannersPath, del.create).Methods(http.MethodPost)
-	mux.HandleFunc(bannersPath, del.list).Methods(http.MethodGet)
-	mux.HandleFunc(userBannerPath, del.get).Methods(http.MethodGet)
-	mux.HandleFunc(bannerPath, del.partialUpdate).Methods(http.MethodPatch)
-	mux.HandleFunc(bannerPath, del.delete).Methods(http.MethodDelete)
+	mux.HandleFunc(bannersPath, checkAuth(adminAccess(dlv.create))).Methods(http.MethodPost)
+	mux.HandleFunc(bannersPath, checkAuth(adminAccess(dlv.list))).Methods(http.MethodGet)
+	mux.HandleFunc(userBannerPath, checkAuth(dlv.get)).Methods(http.MethodGet)
+	mux.HandleFunc(bannerPath, checkAuth(adminAccess(dlv.partialUpdate))).Methods(http.MethodPatch)
+	mux.HandleFunc(bannerPath, checkAuth(adminAccess(dlv.delete))).Methods(http.MethodDelete)
 }
 
 func (d *delivery) create(w http.ResponseWriter, r *http.Request) {
-	token := r.Header.Get("token")
-	_ = token
-
 	body, err := pHTTP.ReadBody(r, d.log)
 	if err != nil {
 		pHTTP.HandleError(w, r, err)
