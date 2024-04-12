@@ -87,12 +87,12 @@ func (d *delivery) create(w http.ResponseWriter, r *http.Request) {
 
 func (d *delivery) list(w http.ResponseWriter, r *http.Request) {
 	queryParams := r.URL.Query()
-	featureID, err := strconv.Atoi(queryParams.Get(FeatureIDKey))
+	featureID, err := strconv.ParseInt(queryParams.Get(FeatureIDKey), 10, 64)
 	if queryParams.Get(FeatureIDKey) != "" && err != nil {
 		pHTTP.HandleError(w, r, pErrors.ErrBadFeatureIDParam)
 		return
 	}
-	tagID, err := strconv.Atoi(queryParams.Get(TagIDKey))
+	tagID, err := strconv.ParseInt(queryParams.Get(TagIDKey), 10, 64)
 	if queryParams.Get(TagIDKey) != "" && err != nil {
 		pHTTP.HandleError(w, r, pErrors.ErrBadTagIDParam)
 		return
@@ -134,12 +134,12 @@ func (d *delivery) get(w http.ResponseWriter, r *http.Request) {
 	}
 
 	queryParams := r.URL.Query()
-	tagID, err := strconv.Atoi(queryParams.Get(TagIDKey))
+	tagID, err := strconv.ParseInt(queryParams.Get(TagIDKey), 10, 64)
 	if err != nil {
 		pHTTP.HandleError(w, r, pErrors.ErrBadTagIDParam)
 		return
 	}
-	featureID, err := strconv.Atoi(queryParams.Get(FeatureIDKey))
+	featureID, err := strconv.ParseInt(queryParams.Get(FeatureIDKey), 10, 64)
 	if err != nil {
 		pHTTP.HandleError(w, r, pErrors.ErrBadFeatureIDParam)
 		return
@@ -173,10 +173,13 @@ func (d *delivery) get(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusForbidden)
 			return
 		}
-		go d.cache.Set(context.Background(), key, &cache.Value{ // nolint
-			Code: pErrors.ErrorToHTTPCode(err),
-			Body: pHTTP.JSONError{Error: err.Error()},
-		})
+		go func() {
+			code, _ := pErrors.ErrorToHTTPCode(err)
+			_ = d.cache.Set(context.Background(), key, &cache.Value{
+				Code: code,
+				Body: pHTTP.JSONError{Error: err.Error()},
+			})
+		}()
 		pHTTP.HandleError(w, r, err)
 		return
 	}
@@ -230,7 +233,7 @@ func (d *delivery) delete(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	bannerID, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
-		pHTTP.HandleError(w, r, err)
+		pHTTP.HandleError(w, r, pErrors.ErrBadBannerIDParam)
 		return
 	}
 

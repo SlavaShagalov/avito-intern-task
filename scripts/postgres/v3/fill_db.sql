@@ -28,10 +28,6 @@ VALUES ('{
        ('{
          "title": "banner_3",
          "info": "banner_3 info"
-       }'),
-       ('{
-         "title": "banner_4",
-         "info": "banner_4 info"
        }');
 
 INSERT INTO banner_references(banner_id, feature_id, tag_id)

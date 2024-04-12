@@ -7,8 +7,8 @@ import (
 )
 
 type CreateParams struct {
-	TagIDs    []int
-	FeatureID int
+	TagIDs    []int64
+	FeatureID int64
 	Content   map[string]any
 	IsActive  bool
 }
@@ -32,22 +32,22 @@ func (p *CreateParams) Validate() error {
 }
 
 type FilterParams struct {
-	FeatureID int
-	TagID     int
+	FeatureID int64
+	TagID     int64
 	Limit     int
 	Offset    int
 }
 
 type GetParams struct {
-	FeatureID int
-	TagID     int
+	FeatureID int64
+	TagID     int64
 	IsAdmin   bool
 }
 
 type PartialUpdateParams struct {
 	ID        int64
-	TagIDs    []int
-	FeatureID *int
+	TagIDs    []int64
+	FeatureID *int64
 	Content   map[string]any
 	IsActive  *bool
 }

@@ -84,6 +84,8 @@ func main() {
 	checkAuth := mw.NewCheckAuth(authUC, logger)
 	checkAdminAccess := mw.NewCheckAdminAccess(logger)
 	accessLog := mw.NewAccessLog(logger)
+	panicCatch := mw.NewPanicCatch(logger)
+
 	router := mux.NewRouter()
 
 	authDelivery.RegisterHandlers(router, authUC, logger)
@@ -91,7 +93,7 @@ func main() {
 
 	server := http.Server{
 		Addr:    ":" + viper.GetString(config.ServerPort),
-		Handler: accessLog(router),
+		Handler: panicCatch(accessLog(router)),
 	}
 
 	logger.Info("API server started", zap.String("port", viper.GetString(config.ServerPort)))

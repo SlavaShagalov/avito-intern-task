@@ -5,7 +5,8 @@ import (
 )
 
 var (
-	ErrDb = errors.New("database error")
+	ErrDb      = errors.New("database error")
+	ErrUnknown = errors.New("unknown error")
 
 	// Banner
 	ErrBannerNotFound      = errors.New("banner not found")
@@ -33,6 +34,8 @@ var (
 	ErrBadFeatureIDField = errors.New("bad feature_id field")
 	ErrBadTagIDsField    = errors.New("bad tag_ids field")
 
+	// Get params
+	ErrBadBannerIDParam  = errors.New("bad banner id parameter")
 	ErrBadFeatureIDParam = errors.New("bad feature id parameter")
 	ErrBadTagIDParam     = errors.New("bad tag id parameter")
 	ErrBadLimitParam     = errors.New("bad limit parameter")

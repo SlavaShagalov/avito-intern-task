@@ -27,6 +27,6 @@ logs:
 test-integration:
 	docker compose -f docker-compose.yml up -d --build test-db
 	sleep 2
-	go test ./test/integration/...
+	go test ./test/integration/... -failfast
 	#go test -count=50 -bench ./tests/integration/...
 	docker compose -f docker-compose.yml down -v test-db

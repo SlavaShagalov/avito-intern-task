@@ -32,13 +32,19 @@ type JSONError struct {
 
 func HandleError(w http.ResponseWriter, r *http.Request, err error) {
 	errCause := errors.Cause(err)
-	httpCode := pErrors.ErrorToHTTPCode(errCause)
-
-	jsonError := JSONError{
-		Error: errCause.Error(),
+	httpCode, exists := pErrors.ErrorToHTTPCode(errCause)
+	if !exists {
+		errCause = pErrors.ErrUnknown
 	}
 
-	SendJSON(w, r, httpCode, jsonError)
+	if pErrors.IsJSONError(errCause) {
+		jsonError := JSONError{
+			Error: errCause.Error(),
+		}
+		SendJSON(w, r, httpCode, jsonError)
+	} else {
+		w.WriteHeader(httpCode)
+	}
 }
 
 func SendJSON(w http.ResponseWriter, r *http.Request, status int, dataStruct any) {

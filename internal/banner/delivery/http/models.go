@@ -7,15 +7,15 @@ import (
 
 // API requests
 type createRequest struct {
-	TagIDs    []int          `json:"tag_ids"`
-	FeatureID int            `json:"feature_id"`
+	TagIDs    []int64        `json:"tag_ids"`
+	FeatureID int64          `json:"feature_id"`
 	Content   map[string]any `json:"content"`
 	IsActive  bool           `json:"is_active"`
 }
 
 type partialUpdateRequest struct {
-	TagIDs    []int          `json:"tag_ids"`
-	FeatureID *int           `json:"feature_id"`
+	TagIDs    []int64        `json:"tag_ids"`
+	FeatureID *int64         `json:"feature_id"`
 	Content   map[string]any `json:"content"`
 	IsActive  *bool          `json:"is_active"`
 }
@@ -32,9 +32,9 @@ func newCreateResponse(bannerID int64) *createResponse {
 }
 
 type banner struct {
-	ID        int            `json:"banner_id"`
-	TagIDs    []int          `json:"tag_ids"`
-	FeatureID int            `json:"feature_id"`
+	ID        int64          `json:"banner_id"`
+	TagIDs    []int64        `json:"tag_ids"`
+	FeatureID int64          `json:"feature_id"`
 	Content   map[string]any `json:"content"`
 	IsActive  bool           `json:"is_active"`
 	CreatedAt time.Time      `json:"created_at"`

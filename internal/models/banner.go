@@ -5,9 +5,9 @@ import (
 )
 
 type Banner struct {
-	ID        int
-	TagIDs    []int
-	FeatureID int
+	ID        int64
+	TagIDs    []int64
+	FeatureID int64
 	Content   map[string]any
 	IsActive  bool
 	CreatedAt time.Time

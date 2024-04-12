@@ -28,16 +28,17 @@ var httpCodes = map[error]int{
 	ErrReadBody: http.StatusBadRequest,
 
 	// Get params
+	ErrBadBannerIDParam:  http.StatusBadRequest,
 	ErrBadFeatureIDParam: http.StatusBadRequest,
 	ErrBadTagIDParam:     http.StatusBadRequest,
 	ErrBadLimitParam:     http.StatusBadRequest,
 	ErrBadOffsetParam:    http.StatusBadRequest,
 }
 
-func ErrorToHTTPCode(err error) int {
+func ErrorToHTTPCode(err error) (int, bool) {
 	httpCode, exist := httpCodes[err]
 	if !exist {
 		httpCode = http.StatusInternalServerError
 	}
-	return httpCode
+	return httpCode, exist
 }
