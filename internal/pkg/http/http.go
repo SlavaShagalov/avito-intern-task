@@ -32,7 +32,7 @@ type JSONError struct {
 
 func HandleError(w http.ResponseWriter, r *http.Request, err error) {
 	errCause := errors.Cause(err)
-	httpCode, _ := pErrors.ErrorToHTTPCode(errCause)
+	httpCode := pErrors.ErrorToHTTPCode(errCause)
 
 	jsonError := JSONError{
 		Error: errCause.Error(),

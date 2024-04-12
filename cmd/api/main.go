@@ -2,7 +2,8 @@ package main
 
 import (
 	"context"
-	redisCache "github.com/SlavaShagalov/avito-intern-task/internal/cache/redis"
+	redisCache "github.com/SlavaShagalov/avito-intern-task/internal/banner/cache/redis"
+	bannerRepository "github.com/SlavaShagalov/avito-intern-task/internal/banner/repository/v3/pgx"
 	"github.com/SlavaShagalov/avito-intern-task/internal/pkg/config"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -14,11 +15,10 @@ import (
 
 	mw "github.com/SlavaShagalov/avito-intern-task/internal/middleware"
 	pLog "github.com/SlavaShagalov/avito-intern-task/internal/pkg/log/zap"
-	pStorage "github.com/SlavaShagalov/avito-intern-task/internal/pkg/storage"
+	"github.com/SlavaShagalov/avito-intern-task/internal/pkg/storage"
 	"github.com/SlavaShagalov/avito-intern-task/internal/pkg/storage/postgres"
 
 	bannerDelivery "github.com/SlavaShagalov/avito-intern-task/internal/banner/delivery/http"
-	bannerRepository "github.com/SlavaShagalov/avito-intern-task/internal/banner/repository/pgx"
 	bannerUsecase "github.com/SlavaShagalov/avito-intern-task/internal/banner/usecase"
 
 	authDelivery "github.com/SlavaShagalov/avito-intern-task/internal/auth/delivery/http"
@@ -28,7 +28,7 @@ import (
 
 func main() {
 	// ===== Logger =====
-	logger := pLog.NewDevelop()
+	logger := pLog.NewDev()
 	defer func() {
 		err := logger.Sync()
 		if err != nil {
@@ -60,7 +60,7 @@ func main() {
 
 	// ===== Cache =====
 	ctx := context.Background()
-	redisClient, err := pStorage.NewRedis(logger, ctx)
+	redisClient, err := storage.NewRedis(logger, ctx)
 	if err != nil {
 		os.Exit(1)
 	}

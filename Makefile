@@ -5,7 +5,9 @@ build:
 
 .PHONY: up
 up:
-	docker compose -f docker-compose.yml up -d --build db api
+	docker compose -f docker-compose.yml up -d --build db cache api
+	docker ps
+	make logs
 
 .PHONY: stop
 stop:
@@ -21,7 +23,10 @@ service = api
 logs:
 	docker compose logs -f $(service)
 
-#name = main
-#.PHONY: logs-api
-#logs-api:
-#	tail -f -n +1 "cmd/api/logs/$(name).log" | batcat --paging=never --language=log
+.PHONY: test-integration
+test-integration:
+	docker compose -f docker-compose.yml up -d --build test-db
+	sleep 2
+	go test ./test/integration/...
+	#go test -count=50 -bench ./tests/integration/...
+	docker compose -f docker-compose.yml down -v test-db

@@ -23,6 +23,9 @@ func New(repo repository.Repository, log *zap.Logger) pBanner.Usecase {
 }
 
 func (uc *usecase) Create(ctx context.Context, params *pBannerRepo.CreateParams) (int64, error) {
+	if err := params.Validate(); err != nil {
+		return 0, err
+	}
 	return uc.repo.Create(ctx, params)
 }
 

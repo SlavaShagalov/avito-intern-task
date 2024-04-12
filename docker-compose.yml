@@ -9,12 +9,27 @@ services:
       - .env
     volumes:
       - db-data:/var/lib/postgresql
-      - ./scripts/postgres/schema.sql:/docker-entrypoint-initdb.d/1.sql
-      - ./scripts/postgres/fill_db.sql:/docker-entrypoint-initdb.d/2.sql
+      - ./scripts/postgres/v3/schema.sql:/docker-entrypoint-initdb.d/1.sql
+      - ./scripts/postgres/v3/fill_db.sql:/docker-entrypoint-initdb.d/2.sql
     ports:
       - "5432:5432"
     networks:
       - banners-network
+    deploy:
+      restart_policy:
+        condition: on-failure
+
+  test-db:
+    image: postgres
+    container_name: banners_test_db
+    restart: always
+    env_file:
+      - .env
+    volumes:
+      - ./scripts/postgres/v3/schema.sql:/docker-entrypoint-initdb.d/1.sql
+      - ./scripts/postgres/v3/fill_test_db.sql:/docker-entrypoint-initdb.d/2.sql
+    ports:
+      - "5435:5432"
     deploy:
       restart_policy:
         condition: on-failure

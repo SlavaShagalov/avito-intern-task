@@ -8,7 +8,8 @@ var (
 	ErrDb = errors.New("database error")
 
 	// Banner
-	ErrBannerNotFound = errors.New("banner not found")
+	ErrBannerNotFound      = errors.New("banner not found")
+	ErrBannerAlreadyExists = errors.New("banner with such feature and tag already exists")
 
 	// User
 	ErrUserNotFound      = errors.New("user not found")
@@ -25,8 +26,12 @@ var (
 	ErrBannerDisabled = errors.New("banner disabled")
 
 	// HTTP
-	ErrReadBody         = errors.New("read request body error")
-	ErrBadSessionCookie = errors.New("bad session cookie")
+	ErrReadBody = errors.New("read request body error")
+
+	// JSON
+	ErrBadContentField   = errors.New("bad content field")
+	ErrBadFeatureIDField = errors.New("bad feature_id field")
+	ErrBadTagIDsField    = errors.New("bad tag_ids field")
 
 	ErrBadFeatureIDParam = errors.New("bad feature id parameter")
 	ErrBadTagIDParam     = errors.New("bad tag id parameter")

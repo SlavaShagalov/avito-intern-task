@@ -1,9 +1,11 @@
 package http
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
+	"github.com/SlavaShagalov/avito-intern-task/internal/banner/cache"
 	pBannerRepo "github.com/SlavaShagalov/avito-intern-task/internal/banner/repository"
-	"github.com/SlavaShagalov/avito-intern-task/internal/cache/redis"
 	mw "github.com/SlavaShagalov/avito-intern-task/internal/middleware"
 	"github.com/SlavaShagalov/avito-intern-task/internal/pkg/constants"
 	pErrors "github.com/SlavaShagalov/avito-intern-task/internal/pkg/errors"
@@ -28,11 +30,11 @@ const (
 
 type delivery struct {
 	uc    pBanner.Usecase
-	cache *redis.Cache
+	cache cache.Cache
 	log   *zap.Logger
 }
 
-func RegisterHandlers(mux *mux.Router, uc pBanner.Usecase, cache *redis.Cache, log *zap.Logger, checkAuth mw.Middleware, adminAccess mw.Middleware) {
+func RegisterHandlers(mux *mux.Router, uc pBanner.Usecase, cache cache.Cache, log *zap.Logger, checkAuth mw.Middleware, adminAccess mw.Middleware) {
 	dlv := delivery{
 		uc:    uc,
 		cache: cache,
@@ -142,24 +144,20 @@ func (d *delivery) get(w http.ResponseWriter, r *http.Request) {
 		pHTTP.HandleError(w, r, pErrors.ErrBadFeatureIDParam)
 		return
 	}
-	useLastRevision := queryParams.Has(UseLastRevisionKey)
 
-	if !useLastRevision {
-		content, err := d.cache.Get(r.Context(), r.URL.String())
+	key := fmt.Sprintf("%d:%d", featureID, tagID)
+	if !queryParams.Has(UseLastRevisionKey) {
+		value, err := d.cache.Get(r.Context(), key)
 		if err == nil {
-			var data map[string]any
-			err = json.Unmarshal(content, &data)
-			if err != nil {
-				pHTTP.HandleError(w, r, pErrors.ErrBadTagIDParam)
-				return
+			d.log.Debug("Cache hit", zap.String("key", key))
+			if value.Body != nil {
+				pHTTP.SendJSON(w, r, value.Code, value.Body)
+			} else {
+				w.WriteHeader(value.Code)
 			}
-
-			d.log.Debug("Cache hit", zap.String("key", r.URL.String()))
-			pHTTP.SendJSON(w, r, http.StatusOK, data)
 			return
-		} else {
-			d.log.Debug("Cache miss", zap.Error(err), zap.String("key", r.URL.String()))
 		}
+		d.log.Debug("Cache miss", zap.Error(err), zap.String("key", key))
 	}
 
 	params := pBannerRepo.GetParams{
@@ -171,27 +169,22 @@ func (d *delivery) get(w http.ResponseWriter, r *http.Request) {
 	content, err := d.uc.Get(r.Context(), &params)
 	if err != nil {
 		if errors.Is(err, pErrors.ErrBannerDisabled) {
+			go d.cache.Set(context.Background(), key, &cache.Value{Code: http.StatusForbidden}) // nolint
 			w.WriteHeader(http.StatusForbidden)
-		} else {
-			pHTTP.HandleError(w, r, err)
+			return
 		}
-		return
-	}
-
-	jsonContent, err := json.Marshal(content)
-	if err != nil {
-		d.log.Error("Failed to marshal content", zap.Error(err))
+		go d.cache.Set(context.Background(), key, &cache.Value{ // nolint
+			Code: pErrors.ErrorToHTTPCode(err),
+			Body: pHTTP.JSONError{Error: err.Error()},
+		})
 		pHTTP.HandleError(w, r, err)
 		return
 	}
 
-	err = d.cache.Set(r.Context(), r.URL.String(), jsonContent)
-	if err != nil {
-		d.log.Error("Failed to set cache", zap.Error(err), zap.String("key", r.URL.String()))
-		pHTTP.SendJSON(w, r, http.StatusOK, content)
-		return
-	}
-
+	go d.cache.Set(context.Background(), key, &cache.Value{ // nolint
+		Code: http.StatusOK,
+		Body: content,
+	})
 	pHTTP.SendJSON(w, r, http.StatusOK, content)
 }
 
