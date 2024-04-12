@@ -20,6 +20,21 @@ jobs:
         with:
           version: v1.54
 
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4.1.1
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+          cache: false
+
+      - name: Run integration tests
+        run: make test-integration
+
   build:
     runs-on: ubuntu-latest
     steps:

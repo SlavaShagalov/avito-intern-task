@@ -16,23 +16,19 @@ VALUES ('tag_1'),
        ('tag_4'),
        ('tag_5');
 
-INSERT INTO banners(content)
+INSERT INTO banners(content, is_active)
 VALUES ('{
   "title": "banner_1",
   "info": "banner_1 info"
-}'),
+}', true),
        ('{
          "title": "banner_2",
          "info": "banner_2 info"
-       }'),
+       }', true),
        ('{
          "title": "banner_3",
          "info": "banner_3 info"
-       }'),
-       ('{
-         "title": "banner_4",
-         "info": "banner_4 info"
-       }');
+       }', false);
 
 INSERT INTO banner_references(banner_id, feature_id, tag_id)
 VALUES (1, 1, 1),

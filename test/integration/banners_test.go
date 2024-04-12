@@ -145,13 +145,77 @@ func (s *BannerSuite) TestCreate() {
 				//
 				//getBoard, err := s.uc.Get(ctx, board.ID)
 				//assert.NoError(s.T(), err, "failed to fetch board from the database")
-				//assert.Equal(s.T(), board.ID, getBoard.ID, "incorrect boardID")
+				//assert.Equal(s.T(), board.ID, getBoard.ID, "incorrect tagID")
 				//assert.Equal(s.T(), test.params.WorkspaceID, getBoard.WorkspaceID, "incorrect WorkspaceID")
 				//assert.Equal(s.T(), test.params.Title, getBoard.Title, "incorrect Title")
 				//assert.Equal(s.T(), test.params.Description, getBoard.Description, "incorrect Description")
 				//
 				//err = s.uc.Delete(ctx, board.ID)
 				//assert.NoError(s.T(), err, "failed to delete created board")
+			}
+		})
+	}
+}
+
+func (s *BannerSuite) TestGet() {
+	type testCase struct {
+		params  *pBannerRepo.GetParams
+		content map[string]any
+		err     error
+	}
+
+	tests := map[string]testCase{
+		"normal": {
+			params: &pBannerRepo.GetParams{
+				FeatureID: 1,
+				TagID:     1,
+				IsAdmin:   true,
+			},
+			content: map[string]any{
+				"title": "banner_1",
+				"info":  "banner_1 info",
+			},
+			err: nil,
+		},
+		"banner not found": {
+			params: &pBannerRepo.GetParams{
+				FeatureID: 5,
+				TagID:     1,
+				IsAdmin:   true,
+			},
+			content: nil,
+			err:     pErrors.ErrBannerNotFound,
+		},
+		"inactive banner for user": {
+			params: &pBannerRepo.GetParams{
+				FeatureID: 1,
+				TagID:     4,
+				IsAdmin:   false,
+			},
+			content: nil,
+			err:     pErrors.ErrBannerDisabled,
+		},
+		"inactive banner for admin": {
+			params: &pBannerRepo.GetParams{
+				FeatureID: 1,
+				TagID:     4,
+				IsAdmin:   true,
+			},
+			content: map[string]any{
+				"title": "banner_3",
+				"info":  "banner_3 info",
+			},
+			err: nil,
+		},
+	}
+
+	for name, test := range tests {
+		s.Run(name, func() {
+			content, err := s.uc.Get(context.Background(), test.params)
+
+			assert.ErrorIs(s.T(), err, test.err, "unexpected error")
+			if err == nil {
+				assert.Equal(s.T(), test.content, content, "incorrect content")
 			}
 		})
 	}
