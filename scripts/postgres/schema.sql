@@ -37,3 +37,20 @@ CREATE TABLE IF NOT EXISTS users
     is_admin   boolean   NOT NULL DEFAULT false,
     created_at timestamp NOT NULL DEFAULT now()
 );
+
+-- CREATE FUNCTION is_banner_unique(_banner_id bigint, _tag_id int) RETURNS BOOLEAN AS
+-- $$
+-- BEGIN
+--     RETURN NOT EXISTS(
+--             SELECT b.id
+--             FROM banners b
+--                      JOIN banner_tags bt on b.id = bt.banner_id
+--             WHERE bt.tag_id = _tag_id
+--               AND b.feature_id = (SELECT _b.feature_id
+--                                   FROM banners _b
+--                                   WHERE _b.id = _banner_id));
+-- END
+-- $$ LANGUAGE PLPGSQL;
+--
+-- ALTER TABLE banner_tags
+--     ADD CONSTRAINT check_banner_unique CHECK (is_banner_unique(banner_id, tag_id));

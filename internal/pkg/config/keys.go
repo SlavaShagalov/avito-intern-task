@@ -14,3 +14,11 @@ const (
 	PostgresPassword = "PG_PASSWORD"
 	PostgresSSLMode  = "PG_SSL_MODE"
 )
+
+// Redis
+const (
+	RedisHost     = "REDIS_HOST"
+	RedisPort     = "REDIS_PORT"
+	RedisDB       = "REDIS_DB"
+	RedisPassword = "REDIS_PASSWORD"
+)

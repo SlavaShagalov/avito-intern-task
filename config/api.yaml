@@ -9,3 +9,10 @@ PG_DB: banners_db
 PG_USER: moderator
 PG_PASSWORD: 2222
 PG_SSL_MODE: disable
+
+# Redis
+REDIS_HOST: cache
+REDIS_PORT: 6379
+REDIS_DB: 0
+REDIS_USER: moderator
+REDIS_PASSWORD: 2222

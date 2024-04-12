@@ -1,6 +1,8 @@
 package main
 
 import (
+	"context"
+	redisCache "github.com/SlavaShagalov/avito-intern-task/internal/cache/redis"
 	"github.com/SlavaShagalov/avito-intern-task/internal/pkg/config"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -12,6 +14,7 @@ import (
 
 	mw "github.com/SlavaShagalov/avito-intern-task/internal/middleware"
 	pLog "github.com/SlavaShagalov/avito-intern-task/internal/pkg/log/zap"
+	pStorage "github.com/SlavaShagalov/avito-intern-task/internal/pkg/storage"
 	"github.com/SlavaShagalov/avito-intern-task/internal/pkg/storage/postgres"
 
 	bannerDelivery "github.com/SlavaShagalov/avito-intern-task/internal/banner/delivery/http"
@@ -37,10 +40,10 @@ func main() {
 	// ===== Configuration =====
 	viper.SetConfigName("api")
 	viper.SetConfigType("yaml")
-	viper.AddConfigPath("/configs")
+	viper.AddConfigPath("/config")
 	err := viper.ReadInConfig()
 	if err != nil {
-		log.Printf("Failed to read configuration: %v\n", err)
+		logger.Error("Failed to read configuration", zap.Error(err))
 		os.Exit(1)
 	}
 	logger.Info("Configuration read successfully")
@@ -55,6 +58,22 @@ func main() {
 		logger.Info("Postgres connection closed")
 	}()
 
+	// ===== Cache =====
+	ctx := context.Background()
+	redisClient, err := pStorage.NewRedis(logger, ctx)
+	if err != nil {
+		os.Exit(1)
+	}
+	defer func() {
+		err = redisClient.Close()
+		if err != nil {
+			logger.Error("Failed to close Redis connection", zap.Error(err))
+		} else {
+			logger.Info("Redis connection closed")
+		}
+	}()
+
+	cache := redisCache.New(redisClient, logger)
 	usersRepo := userRepository.New(pgxPool, logger)
 	bannerRepo := bannerRepository.New(pgxPool, logger)
 
@@ -68,7 +87,7 @@ func main() {
 	router := mux.NewRouter()
 
 	authDelivery.RegisterHandlers(router, authUC, logger)
-	bannerDelivery.RegisterHandlers(router, bannerUC, logger, checkAuth, checkAdminAccess)
+	bannerDelivery.RegisterHandlers(router, bannerUC, cache, logger, checkAuth, checkAdminAccess)
 
 	server := http.Server{
 		Addr:    ":" + viper.GetString(config.ServerPort),

@@ -3,6 +3,7 @@ package http
 import (
 	"encoding/json"
 	pBannerRepo "github.com/SlavaShagalov/avito-intern-task/internal/banner/repository"
+	"github.com/SlavaShagalov/avito-intern-task/internal/cache/redis"
 	mw "github.com/SlavaShagalov/avito-intern-task/internal/middleware"
 	"github.com/SlavaShagalov/avito-intern-task/internal/pkg/constants"
 	pErrors "github.com/SlavaShagalov/avito-intern-task/internal/pkg/errors"
@@ -18,21 +19,24 @@ import (
 )
 
 const (
-	FeatureIDKey = "feature_id"
-	TagIDKey     = "tag_id"
-	LimitKey     = "limit"
-	OffsetKey    = "offset"
+	FeatureIDKey       = "feature_id"
+	TagIDKey           = "tag_id"
+	LimitKey           = "limit"
+	OffsetKey          = "offset"
+	UseLastRevisionKey = "use_last_revision"
 )
 
 type delivery struct {
-	uc  pBanner.Usecase
-	log *zap.Logger
+	uc    pBanner.Usecase
+	cache *redis.Cache
+	log   *zap.Logger
 }
 
-func RegisterHandlers(mux *mux.Router, uc pBanner.Usecase, log *zap.Logger, checkAuth mw.Middleware, adminAccess mw.Middleware) {
+func RegisterHandlers(mux *mux.Router, uc pBanner.Usecase, cache *redis.Cache, log *zap.Logger, checkAuth mw.Middleware, adminAccess mw.Middleware) {
 	dlv := delivery{
-		uc:  uc,
-		log: log,
+		uc:    uc,
+		cache: cache,
+		log:   log,
 	}
 
 	const (
@@ -138,6 +142,25 @@ func (d *delivery) get(w http.ResponseWriter, r *http.Request) {
 		pHTTP.HandleError(w, r, pErrors.ErrBadFeatureIDParam)
 		return
 	}
+	useLastRevision := queryParams.Has(UseLastRevisionKey)
+
+	if !useLastRevision {
+		content, err := d.cache.Get(r.Context(), r.URL.String())
+		if err == nil {
+			var data map[string]any
+			err = json.Unmarshal(content, &data)
+			if err != nil {
+				pHTTP.HandleError(w, r, pErrors.ErrBadTagIDParam)
+				return
+			}
+
+			d.log.Debug("Cache hit", zap.String("key", r.URL.String()))
+			pHTTP.SendJSON(w, r, http.StatusOK, data)
+			return
+		} else {
+			d.log.Debug("Cache miss", zap.Error(err), zap.String("key", r.URL.String()))
+		}
+	}
 
 	params := pBannerRepo.GetParams{
 		FeatureID: featureID,
@@ -152,6 +175,20 @@ func (d *delivery) get(w http.ResponseWriter, r *http.Request) {
 		} else {
 			pHTTP.HandleError(w, r, err)
 		}
+		return
+	}
+
+	jsonContent, err := json.Marshal(content)
+	if err != nil {
+		d.log.Error("Failed to marshal content", zap.Error(err))
+		pHTTP.HandleError(w, r, err)
+		return
+	}
+
+	err = d.cache.Set(r.Context(), r.URL.String(), jsonContent)
+	if err != nil {
+		d.log.Error("Failed to set cache", zap.Error(err), zap.String("key", r.URL.String()))
+		pHTTP.SendJSON(w, r, http.StatusOK, content)
 		return
 	}
 
