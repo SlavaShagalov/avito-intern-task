@@ -12,6 +12,7 @@
 - Все методы имеют префикс `/api/v1`.
 - Используется JWT-авторизация.
 - Подключен `Github Actions` с джобами `lint`, `test` и `build`.
+- Реализовал интеграционные тесты для всех методов.
 
 ### Makefile
 
@@ -65,14 +66,14 @@ curl --location 'http://127.0.0.1:8000/api/v1/user_banner?tag_id=4&feature_id=1&
 --header 'token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTU2ODg4NDcsImlzX2FkbWluIjp0cnVlLCJ1c2VyX2lkIjoxfQ.BexsVzKwa1mmikyeIg6tddXr2tWCl3Aq82qUwS8M3yI'
 ```
 
-### Параметры запроса
+#### Параметры запроса
 
 - feature_id - id фичи
 - tag_id - id тега
 - use_last_revision(опциональный параметр) - при наличии параметра ответ берется напрямую из БД, в
   ином случае допускается передача информации, которая была актуальна 5 минут назад.
 
-### Ответ
+#### Ответ
 
 **200 - OK**
 
@@ -98,7 +99,7 @@ curl --location 'http://127.0.0.1:8000/api/v1/user_banner?tag_id=4&feature_id=1&
 }
 ```
 
-### Описание кодов ответа
+#### Описание кодов ответа
 
 - 200 - OK;
 - 400 - Некорректные данные;
@@ -106,6 +107,213 @@ curl --location 'http://127.0.0.1:8000/api/v1/user_banner?tag_id=4&feature_id=1&
 - 403 - Пользователь не имеет доступа;
 - 404 - Баннер для не найден;
 - 500 - ошибка сервера.
+
+2. Получение всех баннеров c фильтрацией по фиче и/или тегу.
+
+```bash
+curl --location 'http://127.0.0.1:8000/api/v1/banner' \
+--header 'token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTU2ODk3OTQsImlzX2FkbWluIjp0cnVlLCJ1c2VyX2lkIjoxfQ.OWQsdIUuPd0K7MH2zfHDwtwkMpzYtLAXSJ3bcmlPM-Y'
+```
+
+#### Параметры запроса
+
+- feature_id(опциональный параметр) - id фичи
+- tag_id(опциональный параметр) - id тега
+- limit(опциональный параметр) - ограничение размера ответа.
+- offset(опциональный параметр) - смещение от начала списка баннеров в ответе.
+
+#### Ответ
+
+**200 - OK**
+
+```json
+[
+  {
+    "banner_id": 1,
+    "tag_ids": [
+      1
+    ],
+    "feature_id": 1,
+    "content": {
+      "title": "some_title",
+      "text": "some_text",
+      "url": "some_url"
+    },
+    "is_active": true,
+    "created_at": "2024-04-14T12:32:01.024Z",
+    "updated_at": "2024-04-14T12:32:01.024Z"
+  }
+]
+```
+
+**401, 403**
+
+```text
+Тело отсутствует
+```
+
+**500**
+
+```json
+{
+  "error": "string"
+}
+```
+
+#### Описание кодов ответа
+
+- 200 - OK;
+- 401 - Пользователь не авторизован;
+- 403 - Пользователь не имеет доступа (не админ);
+- 500 - ошибка сервера.
+
+3. Создание нового баннера.
+
+```bash
+curl --location 'http://127.0.0.1:8000/api/v1/banner' \
+--header 'token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTMxNjU5ODQsImlzX2FkbWluIjp0cnVlLCJ1c2VyX2lkIjoxfQ.DxZ9qQW2ydo6gsH22EqEkkKavVntM2XJpsay9Wa1y5M' \
+--header 'Content-Type: application/json' \
+--data '{
+  "tag_ids": [
+    1, 2
+  ],
+  "feature_id": 4,
+  "content": {
+    "title_2": "some_title",
+    "text_2": "some_text"
+  },
+  "is_active": false
+}
+'
+```
+
+#### Параметры запроса
+
+Отсутствуют.
+
+#### Ответ
+
+**201 - Created**
+
+```json
+{
+  "banner_id": 5
+}
+```
+
+**401, 403**
+
+```text
+Тело отсутствует
+```
+
+**400, 500**
+
+```json
+{
+  "error": "string"
+}
+```
+
+#### Описание кодов ответа
+
+- 201 - Created;
+- 400 - Некорректные данные;
+- 401 - Пользователь не авторизован;
+- 403 - Пользователь не имеет доступа;
+- 500 - ошибка сервера.
+
+4. Обновление содержимого баннера.
+
+```bash
+curl --location --request PATCH 'http://127.0.0.1:8000/api/v1/banner/3' \
+--header 'token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTMzNDUyNjAsImlzX2FkbWluIjp0cnVlLCJ1c2VyX2lkIjoxfQ.pr9hSQEzDqTGEgcmqiSzFGvBGOhqZWMSDs73GNTWO7U' \
+--header 'Content-Type: application/json' \
+--data '{
+  "tag_ids": [
+    4, 5
+  ],
+  "feature_id": 4,
+  "content": {
+    "type": "123",
+    "info": "data"
+  },
+  "is_active": false
+}
+'
+```
+
+#### Параметры запроса
+
+- id - передается в пути, а не как гет-параметр, id баннера.
+
+#### Ответ
+
+**200, 401, 403, 404**
+
+```text
+Тело отсутствует
+```
+
+**400, 500**
+
+```json
+{
+  "error": "string"
+}
+```
+
+#### Описание кодов ответа
+
+- 200 - OK;
+- 400 - Некорректные данные;
+- 401 - Пользователь не авторизован;
+- 403 - Пользователь не имеет доступа;
+- 404 - Баннер не найден;
+- 500 - ошибка сервера.
+
+5. Удаление баннера по идентификатору.
+
+```bash
+curl --location --request DELETE 'http://127.0.0.1:8000/api/v1/banner/3' \
+--header 'token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3MTMxNjU5ODQsImlzX2FkbWluIjp0cnVlLCJ1c2VyX2lkIjoxfQ.DxZ9qQW2ydo6gsH22EqEkkKavVntM2XJpsay9Wa1y5M'
+```
+
+#### Параметры запроса
+
+- id - передается в пути, а не как гет-параметр, id баннера.
+
+#### Ответ
+
+**204, 401, 403, 404**
+
+```text
+Тело отсутствует
+```
+
+**400, 500**
+
+```json
+{
+  "error": "string"
+}
+```
+
+#### Описание кодов ответа
+
+- 204 - OK;
+- 400 - Некорректные данные;
+- 401 - Пользователь не авторизован;
+- 403 - Пользователь не имеет доступа;
+- 404 - Баннер не найден;
+- 500 - ошибка сервера.
+
+### Дополнительные задания
+
+- Провел нагрузочное тестирование полученного решения для запросов на чтение.
+  Результаты и скрипты запуска тестирования [здесь](test/stress).
+- Реализовал интеграционное тестирование для остальных сценариев [здесь](test/integration/banners_test.go).
+- Описал конфигурацию [линтера](.golangci.yml).
 
 ### Проблемы, с которыми столкнулся
 
