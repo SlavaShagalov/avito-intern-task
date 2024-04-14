@@ -2,27 +2,25 @@ Server Hostname:        localhost
 Server Port:            8000
 
 Document Path:          /api/v1/banner
-Document Length:        26 bytes
+Document Length:        613 bytes
 
 Concurrency Level:      1
-Time taken for tests:   0.782 seconds
+Time taken for tests:   0.707 seconds
 Complete requests:      1000
-Failed requests:        920
-   (Connect: 0, Receive: 0, Length: 920, Exceptions: 0)
-Non-2xx responses:      80
-Total transferred:      676480 bytes
-HTML transferred:       566040 bytes
-Requests per second:    1278.82 [#/sec] (mean)
-Time per request:       0.782 [ms] (mean)
-Time per request:       0.782 [ms] (mean, across all concurrent requests)
-Transfer rate:          844.82 [Kbytes/sec] received
+Failed requests:        0
+Total transferred:      722000 bytes
+HTML transferred:       613000 bytes
+Requests per second:    1413.54 [#/sec] (mean)
+Time per request:       0.707 [ms] (mean)
+Time per request:       0.707 [ms] (mean, across all concurrent requests)
+Transfer rate:          996.66 [Kbytes/sec] received
 
 Connection Times (ms)
               min  mean[+/-sd] median   max
-Connect:        0    0   0.0      0       1
-Processing:     0    1   0.5      1      10
-Waiting:        0    1   0.5      1      10
-Total:          0    1   0.5      1      10
+Connect:        0    0   0.0      0       0
+Processing:     0    1   0.4      1      12
+Waiting:        0    1   0.4      1      12
+Total:          0    1   0.4      1      12
 
 Percentage of the requests served within a certain time (ms)
   50%      1
@@ -31,6 +29,6 @@ Percentage of the requests served within a certain time (ms)
   80%      1
   90%      1
   95%      1
-  98%      2
-  99%      2
- 100%     10 (longest request)
+  98%      1
+  99%      1
+ 100%     12 (longest request)
