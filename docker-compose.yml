@@ -9,8 +9,8 @@ services:
       - .env
     volumes:
       - db-data:/var/lib/postgresql
-      - ./scripts/postgres/v3/schema.sql:/docker-entrypoint-initdb.d/1.sql
-      - ./scripts/postgres/v3/fill_db.sql:/docker-entrypoint-initdb.d/2.sql
+      - ./scripts/postgres/schema.sql:/docker-entrypoint-initdb.d/1.sql
+      - ./scripts/postgres/fill_db.sql:/docker-entrypoint-initdb.d/2.sql
     ports:
       - "5432:5432"
     networks:
@@ -26,8 +26,8 @@ services:
     env_file:
       - .env
     volumes:
-      - ./scripts/postgres/v3/schema.sql:/docker-entrypoint-initdb.d/1.sql
-      - ./scripts/postgres/v3/fill_test_db.sql:/docker-entrypoint-initdb.d/2.sql
+      - ./scripts/postgres/schema.sql:/docker-entrypoint-initdb.d/1.sql
+      - ./scripts/postgres/fill_test_db.sql:/docker-entrypoint-initdb.d/2.sql
     ports:
       - "5435:5432"
     deploy:

@@ -4,7 +4,7 @@ import (
 	"context"
 	pBanner "github.com/SlavaShagalov/avito-intern-task/internal/banner"
 	pBannerRepo "github.com/SlavaShagalov/avito-intern-task/internal/banner/repository"
-	bannerRepository "github.com/SlavaShagalov/avito-intern-task/internal/banner/repository/v3/pgx"
+	bannerRepository "github.com/SlavaShagalov/avito-intern-task/internal/banner/repository/pgx"
 	bannerUsecase "github.com/SlavaShagalov/avito-intern-task/internal/banner/usecase"
 	"github.com/SlavaShagalov/avito-intern-task/internal/models"
 	"github.com/SlavaShagalov/avito-intern-task/internal/pkg/config"
@@ -85,111 +85,112 @@ func (s *BannerSuite) TearDownSuite() {
 	}
 }
 
-//func (s *BannerSuite) TestCreate() {
-//	type testCase struct {
-//		params *pBannerRepo.CreateParams
-//		err    error
-//	}
-//
-//	tests := map[string]testCase{
-//		"normal": {
-//			params: &pBannerRepo.CreateParams{
-//				TagIDs:    []int{1, 2, 3},
-//				FeatureID: 3,
-//				Content:   map[string]any{"title": "banner 5"},
-//				IsActive:  true,
-//			},
-//			err: nil,
-//		},
-//		"banner already exists": {
-//			params: &pBannerRepo.CreateParams{
-//				TagIDs:    []int{2},
-//				FeatureID: 1,
-//				Content:   map[string]any{"title": "banner 5"},
-//				IsActive:  true,
-//			},
-//			err: pErrors.ErrBannerAlreadyExists,
-//		},
-//		"tag ids is nil": {
-//			params: &pBannerRepo.CreateParams{
-//				TagIDs:    nil,
-//				FeatureID: 1,
-//				Content:   map[string]any{},
-//				IsActive:  true,
-//			},
-//			err: pErrors.ErrBadTagIDsField,
-//		},
-//		"tag ids have zero id": {
-//			params: &pBannerRepo.CreateParams{
-//				TagIDs:    []int{0, 1},
-//				FeatureID: 1,
-//				Content:   map[string]any{},
-//				IsActive:  true,
-//			},
-//			err: pErrors.ErrBadTagIDsField,
-//		},
-//		"tag ids have negative id": {
-//			params: &pBannerRepo.CreateParams{
-//				TagIDs:    []int{1, -1},
-//				FeatureID: 1,
-//				Content:   map[string]any{},
-//				IsActive:  true,
-//			},
-//			err: pErrors.ErrBadTagIDsField,
-//		},
-//		"feature id is zero": {
-//			params: &pBannerRepo.CreateParams{
-//				TagIDs:    []int{},
-//				FeatureID: 0,
-//				Content:   map[string]any{},
-//				IsActive:  true,
-//			},
-//			err: pErrors.ErrBadFeatureIDField,
-//		},
-//		"feature id is negative": {
-//			params: &pBannerRepo.CreateParams{
-//				TagIDs:    []int{},
-//				FeatureID: 0,
-//				Content:   map[string]any{},
-//				IsActive:  true,
-//			},
-//			err: pErrors.ErrBadFeatureIDField,
-//		},
-//		"content is nil": {
-//			params: &pBannerRepo.CreateParams{
-//				TagIDs:    []int{},
-//				FeatureID: 1,
-//				Content:   nil,
-//				IsActive:  true,
-//			},
-//			err: pErrors.ErrBadContentField,
-//		},
-//	}
-//
-//	for name, test := range tests {
-//		s.Run(name, func() {
-//			bannerID, err := s.uc.Create(context.Background(), test.params)
-//			assert.ErrorIs(s.T(), err, test.err, "unexpected error")
-//
-//			if err == nil {
-//				_ = bannerID
-//				//assert.Equal(s.T(), test.params., board.WorkspaceID, "incorrect WorkspaceID")
-//				//assert.Equal(s.T(), test.params.Title, board.Title, "incorrect Title")
-//				//assert.Equal(s.T(), test.params.Description, board.Description, "incorrect Description")
-//				//
-//				//getBoard, err := s.uc.Get(ctx, board.ID)
-//				//assert.NoError(s.T(), err, "failed to fetch board from the database")
-//				//assert.Equal(s.T(), board.ID, getBoard.ID, "incorrect tagID")
-//				//assert.Equal(s.T(), test.params.WorkspaceID, getBoard.WorkspaceID, "incorrect WorkspaceID")
-//				//assert.Equal(s.T(), test.params.Title, getBoard.Title, "incorrect Title")
-//				//assert.Equal(s.T(), test.params.Description, getBoard.Description, "incorrect Description")
-//				//
-//				//err = s.uc.Delete(ctx, board.ID)
-//				//assert.NoError(s.T(), err, "failed to delete created board")
-//			}
-//		})
-//	}
-//}
+func (s *BannerSuite) TestCreate() {
+	type testCase struct {
+		params *pBannerRepo.CreateParams
+		err    error
+	}
+
+	tests := map[string]testCase{
+		"normal": {
+			params: &pBannerRepo.CreateParams{
+				TagIDs:    []int64{1, 2, 3},
+				FeatureID: 3,
+				Content:   map[string]any{"title": "banner 5"},
+				IsActive:  true,
+			},
+			err: nil,
+		},
+		"banner already exists": {
+			params: &pBannerRepo.CreateParams{
+				TagIDs:    []int64{2},
+				FeatureID: 1,
+				Content:   map[string]any{"title": "banner 5"},
+				IsActive:  true,
+			},
+			err: pErrors.ErrBannerAlreadyExists,
+		},
+		"tag ids is nil": {
+			params: &pBannerRepo.CreateParams{
+				TagIDs:    nil,
+				FeatureID: 1,
+				Content:   map[string]any{},
+				IsActive:  true,
+			},
+			err: pErrors.ErrBadTagIDsField,
+		},
+		"tag ids have zero id": {
+			params: &pBannerRepo.CreateParams{
+				TagIDs:    []int64{0, 1},
+				FeatureID: 1,
+				Content:   map[string]any{},
+				IsActive:  true,
+			},
+			err: pErrors.ErrBadTagIDsField,
+		},
+		"tag ids have negative id": {
+			params: &pBannerRepo.CreateParams{
+				TagIDs:    []int64{1, -1},
+				FeatureID: 1,
+				Content:   map[string]any{},
+				IsActive:  true,
+			},
+			err: pErrors.ErrBadTagIDsField,
+		},
+		"feature id is zero": {
+			params: &pBannerRepo.CreateParams{
+				TagIDs:    []int64{1},
+				FeatureID: 0,
+				Content:   map[string]any{},
+				IsActive:  true,
+			},
+			err: pErrors.ErrBadFeatureIDField,
+		},
+		"feature id is negative": {
+			params: &pBannerRepo.CreateParams{
+				TagIDs:    []int64{1},
+				FeatureID: 0,
+				Content:   map[string]any{},
+				IsActive:  true,
+			},
+			err: pErrors.ErrBadFeatureIDField,
+		},
+		"content is nil": {
+			params: &pBannerRepo.CreateParams{
+				TagIDs:    []int64{1},
+				FeatureID: 1,
+				Content:   nil,
+				IsActive:  true,
+			},
+			err: pErrors.ErrBadContentField,
+		},
+	}
+
+	for name, test := range tests {
+		s.Run(name, func() {
+			bannerID, err := s.uc.Create(context.Background(), test.params)
+			assert.ErrorIs(s.T(), err, test.err, "unexpected error")
+
+			if err == nil {
+				// check banner in db
+				banners, err := s.uc.List(context.Background(), &pBannerRepo.FilterParams{
+					FeatureID: test.params.FeatureID,
+					TagID:     test.params.TagIDs[0],
+				})
+				assert.NoError(s.T(), err, "failed to fetch banners from db")
+				assert.Equal(s.T(), bannerID, banners[0].ID, "incorrect ID")
+				assert.Equal(s.T(), test.params.FeatureID, banners[0].FeatureID, "incorrect FeatureID")
+				assert.Equal(s.T(), test.params.TagIDs, banners[0].TagIDs, "incorrect TagIDs")
+				assert.Equal(s.T(), test.params.Content, banners[0].Content, "incorrect Content")
+				assert.Equal(s.T(), test.params.IsActive, banners[0].IsActive, "incorrect IsActive")
+
+				// reset changes in db
+				err = s.uc.Delete(context.Background(), bannerID)
+				assert.NoError(s.T(), err, "failed to delete created banner")
+			}
+		})
+	}
+}
 
 func (s *BannerSuite) TestList() {
 	type testCase struct {
@@ -451,11 +452,11 @@ func (s *BannerSuite) TestPartialUpdate() {
 				assert.Equal(s.T(), test.banner.TagIDs, banners[0].TagIDs, "incorrect TagIDs")
 				assert.Equal(s.T(), test.banner.Content, banners[0].Content, "incorrect Content")
 				assert.Equal(s.T(), test.banner.IsActive, banners[0].IsActive, "incorrect IsActive")
-			}
 
-			// reset banner
-			err = s.uc.PartialUpdate(context.Background(), &resetParams)
-			assert.NoError(s.T(), err, "failed to reset banner in db")
+				// reset banner
+				err = s.uc.PartialUpdate(context.Background(), &resetParams)
+				assert.NoError(s.T(), err, "failed to reset banner in db")
+			}
 		})
 	}
 }

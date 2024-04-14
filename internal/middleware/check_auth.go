@@ -2,7 +2,6 @@ package middleware
 
 import (
 	"context"
-	"github.com/SlavaShagalov/avito-intern-task/internal/auth"
 	"github.com/SlavaShagalov/avito-intern-task/internal/pkg/config"
 	pErrors "github.com/SlavaShagalov/avito-intern-task/internal/pkg/errors"
 	pHTTP "github.com/SlavaShagalov/avito-intern-task/internal/pkg/http"
@@ -12,7 +11,7 @@ import (
 	"net/http"
 )
 
-func NewCheckAuth(uc auth.Usecase, log *zap.Logger) Middleware {
+func NewCheckAuth(log *zap.Logger) Middleware {
 	return func(h http.HandlerFunc) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			tokenString := r.Header.Get("token")

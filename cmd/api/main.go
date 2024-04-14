@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	redisCache "github.com/SlavaShagalov/avito-intern-task/internal/banner/cache/redis"
-	bannerRepository "github.com/SlavaShagalov/avito-intern-task/internal/banner/repository/v3/pgx"
+	bannerRepository "github.com/SlavaShagalov/avito-intern-task/internal/banner/repository/pgx"
 	"github.com/SlavaShagalov/avito-intern-task/internal/pkg/config"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -81,7 +81,7 @@ func main() {
 	bannerUC := bannerUsecase.New(bannerRepo, logger)
 
 	// ===== Server =====
-	checkAuth := mw.NewCheckAuth(authUC, logger)
+	checkAuth := mw.NewCheckAuth(logger)
 	checkAdminAccess := mw.NewCheckAdminAccess(logger)
 	accessLog := mw.NewAccessLog(logger)
 	panicCatch := mw.NewPanicCatch(logger)

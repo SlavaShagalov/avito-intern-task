@@ -17,7 +17,6 @@ var jsonErrors = map[error]struct{}{
 
 	// Auth
 	ErrWrongLoginOrPassword: {},
-	ErrAuthTokenNotFound:    {},
 
 	// HTTP
 	ErrReadBody: {},

@@ -52,6 +52,23 @@ type PartialUpdateParams struct {
 	IsActive  *bool
 }
 
+func (p *PartialUpdateParams) Validate() error {
+	if p.ID <= 0 {
+		return pErrors.ErrBadBannerIDParam
+	}
+	if p.TagIDs != nil {
+		for _, tagID := range p.TagIDs {
+			if tagID <= 0 {
+				return pErrors.ErrBadTagIDsField
+			}
+		}
+	}
+	if p.FeatureID != nil && *p.FeatureID <= 0 {
+		return pErrors.ErrBadFeatureIDField
+	}
+	return nil
+}
+
 type Repository interface {
 	Create(ctx context.Context, params *CreateParams) (int64, error)
 	List(ctx context.Context, params *FilterParams) ([]models.Banner, error)

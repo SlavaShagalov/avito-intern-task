@@ -145,7 +145,7 @@ func (d *delivery) get(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	key := fmt.Sprintf("%d:%d", featureID, tagID)
+	key := fmt.Sprintf("%d:%d:%t", featureID, tagID, isAdmin)
 	if !queryParams.Has(UseLastRevisionKey) {
 		value, err := d.cache.Get(r.Context(), key)
 		if err == nil {
@@ -195,7 +195,7 @@ func (d *delivery) partialUpdate(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	bannerID, err := strconv.ParseInt(vars["id"], 10, 64)
 	if err != nil {
-		pHTTP.HandleError(w, r, err)
+		pHTTP.HandleError(w, r, pErrors.ErrBadBannerIDParam)
 		return
 	}
 

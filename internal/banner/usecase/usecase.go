@@ -45,6 +45,9 @@ func (uc *usecase) Get(ctx context.Context, params *pBannerRepo.GetParams) (map[
 }
 
 func (uc *usecase) PartialUpdate(ctx context.Context, params *pBannerRepo.PartialUpdateParams) error {
+	if err := params.Validate(); err != nil {
+		return err
+	}
 	return uc.repo.PartialUpdate(ctx, params)
 }
 
