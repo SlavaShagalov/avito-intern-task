@@ -1,0 +1,37 @@
+Server Hostname:        localhost
+Server Port:            8000
+
+Document Path:          /api/v1/user_banner?feature_id=1&tag_id=1
+Document Length:        43 bytes
+
+Concurrency Level:      1000
+Time taken for tests:   0.097 seconds
+Complete requests:      1000
+Failed requests:        0
+Total transferred:      151000 bytes
+HTML transferred:       43000 bytes
+Requests per second:    10309.17 [#/sec] (mean)
+Time per request:       97.001 [ms] (mean)
+Time per request:       0.097 [ms] (mean, across all concurrent requests)
+Transfer rate:          1520.20 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0   24   7.6     23      40
+Processing:     7   29  12.9     30      52
+Waiting:        1   28  13.1     30      52
+Total:         22   54  12.4     54      88
+
+Percentage of the requests served within a certain time (ms)
+  50%     54
+  66%     57
+  75%     60
+  80%     63
+  90%     74
+  95%     76
+  98%     78
+  99%     82
+ 100%     88 (longest request)
+
+# Результат после третьего запуска ab, при первом прогоне максимальное время ответа ~200мс,
+# при втором ~120-130мс.

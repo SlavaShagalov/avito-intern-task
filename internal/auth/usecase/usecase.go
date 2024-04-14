@@ -16,6 +16,8 @@ import (
 	"time"
 )
 
+const tokenExpiration = 30 * 24 * time.Hour
+
 type usecase struct {
 	usersRepo user.Repository
 	hasher    pHasher.Hasher
@@ -43,7 +45,7 @@ func (uc *usecase) SignIn(ctx context.Context, params *auth.SignInParams) (*mode
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id":  user.ID,
 		"is_admin": user.IsAdmin,
-		"exp":      time.Now().Add(time.Hour * 72).Unix(),
+		"exp":      time.Now().Add(tokenExpiration).Unix(),
 	})
 
 	signedString, err := token.SignedString([]byte(viper.GetString(config.AuthKey)))
